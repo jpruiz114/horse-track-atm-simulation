@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CommandParser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">HorseTrackATMSimulation</a> &gt; <a href="index.source.html" class="el_package">com.vikingcloud.horsetrack.parser</a> &gt; <span class="el_source">CommandParser.java</span></div><h1>CommandParser.java</h1><pre class="source lang-java linenums">package com.vikingcloud.horsetrack.parser;
+
+import com.vikingcloud.horsetrack.AutomatedTellerMachine;
+import com.vikingcloud.horsetrack.command.BetCommand;
+import com.vikingcloud.horsetrack.command.Command;
+import com.vikingcloud.horsetrack.command.InvalidBetCommand;
+import com.vikingcloud.horsetrack.command.InvalidCommand;
+import com.vikingcloud.horsetrack.command.InvalidHorseNumberCommand;
+import com.vikingcloud.horsetrack.command.QuitCommand;
+import com.vikingcloud.horsetrack.command.RestockCommand;
+import com.vikingcloud.horsetrack.command.SetWinnerCommand;
+import com.vikingcloud.horsetrack.model.Horse;
+
+import static com.vikingcloud.horsetrack.constants.CommandConstants.*;
+
+public class CommandParser {
+    private CommandParser() {
+        // Prevent instantiation
+    }
+
+    public static Command parse(String input, AutomatedTellerMachine atm) {
+<span class="fc bfc" id="L22" title="All 4 branches covered.">        if (input == null || input.trim().isEmpty()) {</span>
+<span class="fc" id="L23">            return null;</span>
+        }
+
+        /*
+        If the user enters any combination of whitespace characters between the command tokens, handle it.
+        \\s = Any whitespace character (space, tab)
+        + = one or more whitespace character
+         */
+<span class="fc" id="L31">        String[] tokens = input.trim().split(&quot;\\s+&quot;);</span>
+<span class="fc" id="L32">        String cmd = tokens[0].toLowerCase();</span>
+
+        /*
+        How can we get invalid commands here?
+
+        Command: x 5
+        Output: Invalid Command: x 5
+
+        Command: w two
+        Output: Invalid Command: w two
+
+        Command: 9 100
+        Output: Invalid Horse Number: 9
+
+        Command: 1 10.25
+        Output: Invalid Bet: 10.25
+
+        Command: 4 -5
+        Output: Invalid Bet: -5
+
+        Command: 4 ten
+        Output: Invalid Bet: ten
+         */
+
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        if (cmd.equals(RESTOCK)) {</span>
+<span class="fc" id="L57">            return new RestockCommand();</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        } else if (cmd.equals(QUIT)) {</span>
+<span class="fc" id="L59">            return new QuitCommand();</span>
+<span class="fc bfc" id="L60" title="All 4 branches covered.">        } else if (cmd.equals(SET_WINNING_HORSE) &amp;&amp; tokens.length == 2) {</span>
+            try {
+<span class="fc" id="L62">                int horseNumber = Integer.parseInt(tokens[1]);</span>
+<span class="fc" id="L63">                return new SetWinnerCommand(horseNumber);</span>
+<span class="fc" id="L64">            } catch (NumberFormatException numberFormatException) {</span>
+<span class="fc" id="L65">                return new InvalidCommand(input);</span>
+            }
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        } else if (tokens.length == 2) {</span>
+<span class="fc" id="L68">            String horseToken = tokens[0];</span>
+<span class="fc" id="L69">            String amountToken = tokens[1];</span>
+
+            try {
+<span class="fc" id="L72">                int horseNumber = Integer.parseInt(horseToken);</span>
+<span class="fc" id="L73">                Horse horse = atm.getHorseByNumber(horseNumber);</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">                if (horse == null) {</span>
+<span class="fc" id="L75">                    return new InvalidHorseNumberCommand(horseNumber);</span>
+                }
+
+                // amount may still be invalid (like 10.25)
+                try {
+<span class="fc" id="L80">                    int amount = Integer.parseInt(amountToken);</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">                    if (amount &lt;= 0) {</span>
+<span class="fc" id="L82">                        return new InvalidBetCommand(amountToken);</span>
+                    }
+<span class="fc" id="L84">                    return new BetCommand(horseNumber, amount);</span>
+<span class="fc" id="L85">                } catch (NumberFormatException e) {</span>
+<span class="fc" id="L86">                    return new InvalidBetCommand(amountToken);</span>
+                }
+<span class="fc" id="L88">            } catch (NumberFormatException e) {</span>
+<span class="fc" id="L89">                return new InvalidCommand(input);</span>
+            }
+        } else {
+<span class="fc" id="L92">            return new InvalidCommand(input);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
