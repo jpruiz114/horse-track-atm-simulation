@@ -1,6 +1,6 @@
 # Horse Track ATM Simulation
 
-A Java-based console application that simulates an ATM system for a horse racing track. This coding challenge demonstrates object-oriented design, command pattern implementation, and comprehensive error handling.
+A Java-based console application that simulates an ATM system for a horse racing track. This coding challenge demonstrates object-oriented design, command pattern implementation, and error handling.
 
 ## Quick Start
 
